@@ -6,24 +6,33 @@ import tensorflow as tf
 import numpy as np
 from time import time
 
-frame_srcs = glob.glob("../FLIR_ADAS_v2/images_thermal_val/data/*.jpg")
-frame_srcs.sort()
+START_BUFFER = 10
+
+human_image_paths = glob.glob("dataset/human/*.jpg")
+print("Found {} human images".format(len(human_image_paths)))
+no_human_image_paths = glob.glob("dataset/no_human/*.jpg")
+print("Found {} no-human images".format(len(no_human_image_paths)))
+image_paths = human_image_paths + no_human_image_paths
+print("Total images: {}".format(len(image_paths)))
 
 model = tf.saved_model.load(sys.argv[1])
 time_total = 0
 
-for i, frame_src in enumerate(frame_srcs):
-    frame = np.array(Image.open(frame_src))
-    frames = (np.expand_dims([frame], axis=-1)/255.).astype(np.float32)
+expected = True
+fps = 0
+for i, image_path in enumerate(image_paths):
+    image = np.split(cv.imread(image_path), 3, axis=2)[0]
     start = time()
-    if model(frames) > 0.5:
+    if model([image]) > 0.5:
         human = True
     else:
         human = False
     end = time()
-    cv.imshow("frame",frame)
+    cv.imshow("image", image)
     cv.waitKey(1)
-    if i > 10:
+    if i > START_BUFFER:
         time_total += end - start
-        fps = (i-10)/time_total
-        print(f"Human detected: {human} | FPS: {fps}")
+        fps = (i-START_BUFFER)/time_total
+    if i == len(human_image_paths):
+        expected = False
+    print(f"Human detected: {human}/{expected} | FPS: {fps}")
