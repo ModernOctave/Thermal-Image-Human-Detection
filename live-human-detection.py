@@ -3,8 +3,13 @@ import tensorflow as tf
 import cv2 as cv
 from time import time
 import numpy as np
+import sys
 
-MODEL_PATH = "./models/MLX90640-1"
+if len(sys.argv) != 2:
+    print("Usage: python3 live-human-detection.py <path to model>")
+    exit(1)
+
+MODEL_PATH = sys.argv[1]
 
 fps = []
 last_time = time()

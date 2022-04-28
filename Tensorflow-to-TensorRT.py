@@ -1,5 +1,9 @@
 import sys
 
+if len(sys.argv) < 2:
+    print("Usage: python3 Tensorflow-to-TensorRT.py <paths to unoptimized models>")
+    exit(1)
+
 for input_model in sys.argv[1:]:
     output_model = input_model + "-TRT"
 
