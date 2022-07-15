@@ -1,3 +1,6 @@
 venv/
 models/
 .ipynb_checkpoints/
+FLIR*
+.vscode/
+__pycache__/
